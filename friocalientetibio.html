@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Temperatura</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: url('https://i.ytimg.com/vi/UzelZtubqXg/maxresdefault.jpg') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            transition: background 0.5s ease-in-out;
+        }
+        .juego-contenedor {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 50px;
+            border-radius: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 90%;
+            transition: transform 0.3s ease-in-out;
+        }
+        .juego-contenedor:hover {
+            transform: scale(1.05);
+        }
+        .juego-contenedor h1 {
+            margin-bottom: 20px;
+            font-size: 2em;
+            color: #333;
+        }
+        .juego-contenedor p {
+            margin-bottom: 20px;
+            color: #666;
+        }
+        #entradaAdivinanza {
+            width: calc(100% - 22px);
+            padding: 10px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        #entradaAdivinanza:focus {
+            border-color: #74ebd5;
+            outline: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #74ebd5;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        button:hover {
+            background-color: #ACB6E5;
+            transform: scale(1.1);
+        }
+        .mensaje-resultado {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: #333;
+            transition: color 0.3s;
+        }
+        .caliente {
+            color: #FF6347; /* Tomato */
+        }
+        .tibio {
+            color: #FFA500; /* Orange */
+        }
+        .frio {
+            color: #1E90FF; /* DodgerBlue */
+        }
+    </style>
+</head>
+<body>
+    <div class="juego-contenedor">
+        <h1>Juego de Temperatura</h1>
+        <p>Adivina el número entre 1 y 50</p>
+        <input type="number" id="entradaAdivinanza" min="1" max="50" placeholder="Ingresa tu número" />
+        <button onclick="verificarAdivinanza()">Probar</button>
+        <div class="mensaje-resultado" id="mensajeResultado"></div>
+        <div class="mensaje-resultado" id="mensajeIntentos"></div>
+        <button onclick="reiniciarJuego()">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        let numeroSecreto = Math.floor(Math.random() * 50) + 1;
+        let intentos = 0;
+        const intentosMaximos = 12;
+        const imagenesFondo = [
+            'https://somoskudasai.com/wp-content/uploads/2024/02/portada_astolfo.jpg',
+            'https://www.anmosugoi.com/wp-content/uploads/2024/03/astolfo-port-.webp' // Agrega el URL de otra imagen
+        ];
+        let indiceImagenActual = 0;
+
+        function verificarAdivinanza() {
+            const adivinanzaUsuario = parseInt(document.getElementById('entradaAdivinanza').value);
+            intentos++;
+            
+            if (isNaN(adivinanzaUsuario) || adivinanzaUsuario < 1 || adivinanzaUsuario > 50) {
+                document.getElementById('mensajeResultado').textContent = "Por favor, ingresa un número válido entre 1 y 50.";
+                return;
+            }
+            
+            if (intentos <= intentosMaximos) {
+                let mensaje;
+                const diferencia = Math.abs(numeroSecreto - adivinanzaUsuario);
+
+                if (adivinanzaUsuario === numeroSecreto) {
+                    mensaje = "¡Correcto! ¡Adivinaste el número!";
+                    terminarJuego(mensaje);
+                    return;
+                } else if (diferencia <= 5) {
+                    mensaje = "¡Caliente!";
+                    document.getElementById('mensajeResultado').className = "mensaje-resultado caliente";
+                } else if (diferencia <= 10) {
+                    mensaje = "¡Tibio!";
+                    document.getElementById('mensajeResultado').className = "mensaje-resultado tibio";
+                } else {
+                    mensaje = "¡Frío!";
+                    document.getElementById('mensajeResultado').className = "mensaje-resultado frio";
+                }
+
+                document.getElementById('mensajeResultado').textContent = mensaje;
+                document.getElementById('mensajeIntentos').textContent = `Intento ${intentos} de ${intentosMaximos}`;
+                
+                if (intentos === intentosMaximos) {
+                    terminarJuego(`Lo siento, no adivinaste el número. Era ${numeroSecreto}.`);
+                }
+            }
+        }
+
+        function terminarJuego(mensajeFinal) {
+            document.getElementById('mensajeResultado').textContent = mensajeFinal;
+            document.getElementById('mensajeResultado').className = "mensaje-resultado";
+            document.getElementById('mensajeIntentos').textContent = '';
+            document.getElementById('entradaAdivinanza').disabled = true;
+            document.querySelectorAll('button')[0].disabled = true;
+        }
+
+        function reiniciarJuego() {
+            numeroSecreto = Math.floor(Math.random() * 50) + 1;
+            intentos = 0;
+            document.getElementById('mensajeResultado').textContent = '';
+            document.getElementById('mensajeIntentos').textContent = '';
+            document.getElementById('entradaAdivinanza').value = '';
+            document.getElementById('entradaAdivinanza').disabled = false;
+            document.querySelectorAll('button')[0].disabled = false;
+
+            // Cambiar la imagen de fondo cada vez que se reinicia el juego
+            indiceImagenActual = (indiceImagenActual + 1) % imagenesFondo.length; // Incrementa el índice y vuelve a 0 si llega al final de la lista
+            document.body.style.backgroundImage = `url('${imagenesFondo[indiceImagenActual]}')`;
+        }
+    </script>
+</body>
+</html>
